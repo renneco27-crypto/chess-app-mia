@@ -345,33 +345,35 @@ export function PlayPage() {
         <div className="clock-row">
           <PlayerClock
             timeMs={clockRef.current.black}
-            label="Black"
             active={clockRunning === 'black'}
           />
           <PlayerClock
             timeMs={clockRef.current.white}
-            label="White"
             active={clockRunning === 'white'}
           />
         </div>
 
-        <EvalBar cp={evalCp} thinking={analyzing} />
+        <div className="board-row">
+          <EvalBar cp={evalCp} thinking={analyzing} />
 
-        <div className="player-strip">
-          <div className="player-avatar">M</div>
-          <span className="player-name">Maia 1500</span>
-          {waiting && (
-            <span style={{ marginLeft: 8, fontSize: '0.75rem', color: 'var(--c-text-muted)' }}>
-              thinking…
-            </span>
-          )}
-        </div>
+          <div className="board-col">
+            <div className="player-strip">
+              <div className="player-avatar">M</div>
+              <span className="player-name">Maia 1500</span>
+              {waiting && (
+                <span style={{ marginLeft: 8, fontSize: '0.75rem', color: 'var(--c-text-muted)' }}>
+                  thinking…
+                </span>
+              )}
+            </div>
 
-        <ChessBoard ref={boardRef} config={initialConfig} />
+            <ChessBoard ref={boardRef} config={initialConfig} />
 
-        <div className="player-strip">
-          <div className="player-avatar">You</div>
-          <span className="player-name">You</span>
+            <div className="player-strip">
+              <div className="player-avatar">You</div>
+              <span className="player-name">You</span>
+            </div>
+          </div>
         </div>
 
         {currentBanner && (

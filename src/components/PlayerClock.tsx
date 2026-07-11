@@ -1,6 +1,5 @@
 interface PlayerClockProps {
   timeMs: number
-  label: string
   active: boolean
 }
 
@@ -12,14 +11,18 @@ function fmt(ms: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-export function PlayerClock({ timeMs, label, active }: PlayerClockProps) {
+export function PlayerClock({ timeMs, active }: PlayerClockProps) {
   const urgent = timeMs > 0 && timeMs < 60000
   const expired = timeMs <= 0
+  const [min, sec] = fmt(timeMs).split(':')
 
   return (
-    <div className={`player-clock ${active ? 'clock-active' : ''} ${urgent ? 'clock-urgent' : ''} ${expired ? 'clock-expired' : ''}`}>
-      <span className="clock-label">{label}</span>
-      <span className="clock-time">{fmt(timeMs)}</span>
+    <div className={`rclock ${active ? 'rclock-running' : ''} ${urgent ? 'rclock-urgent' : ''} ${expired ? 'rclock-expired' : ''}`}>
+      <div className="rclock-time">
+        <span className="rclock-digits">{min}</span>
+        <span className="rclock-sep">:</span>
+        <span className="rclock-digits">{sec}</span>
+      </div>
     </div>
   )
 }

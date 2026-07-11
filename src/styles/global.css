@@ -137,10 +137,22 @@ cg-container {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
+  gap: 8px;
+  padding: 16px 24px;
   min-height: 0;
   overflow: auto;
+}
+.board-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+}
+.board-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 .sidebar {
   display: flex;
@@ -150,28 +162,50 @@ cg-container {
   overflow: hidden;
 }
 
-/* --- Eval bar --------------------------------------------- */
-.eval-bar-wrap {
-  width: var(--board-size);
-  height: 6px;
-  background: var(--c-blunder);   /* black's color */
-  border-radius: 3px;
-  overflow: hidden;
-}
-.eval-bar-fill {
-  height: 100%;
-  background: var(--c-text);     /* white's color */
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-.eval-label {
+/* --- Eval bar (vertical liquid) --------------------------- */
+.eval-bar-vert {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.eval-bar-track {
+  position: relative;
+  width: 24px;
+  height: 100%;
+  min-height: 350px;
+  background: #111;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--c-border);
+}
+.eval-bar-white {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, #ccc, #fff);
+  border-radius: 0 0 5px 5px;
+  transition: height 0.4s ease;
+}
+.eval-bar-line {
+  position: absolute;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: 3px;
+  background: var(--c-accent);
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: top 0.4s ease;
+  box-shadow: 0 0 6px var(--c-accent-glow);
+  z-index: 1;
+}
+.eval-bar-number {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--c-text-muted);
-  margin-top: 4px;
-  width: var(--board-size);
+  white-space: nowrap;
 }
 
 /* --- Player strips ---------------------------------------- */
@@ -204,18 +238,55 @@ cg-container {
   color: var(--c-text-muted);
   margin-left: 4px;
 }
-.player-clock {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--c-text);
-  background: var(--c-surface-2);
-  padding: 3px 10px;
-  border-radius: 4px;
+/* --- Player clock (Lichess .rclock style) ----------------- */
+.rclock {
+  display: flex;
+  align-items: center;
+  background: #1a1a1a;
   border: 1px solid var(--c-border);
+  border-radius: 0 0 7px 7px;
+  padding: 0 15px;
+  min-width: 140px;
+  height: 56px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.08), 0 3px 1px -2px rgba(0,0,0,0.18), 0 1px 5px rgba(0,0,0,0.1);
+  transition: border-color 0.2s;
 }
-.player-clock.low-time { color: var(--c-blunder); border-color: var(--c-blunder); }
+.rclock.rclock-running {
+  border-color: var(--c-accent);
+  border-top: 2px solid var(--c-accent);
+}
+.rclock.rclock-urgent .rclock-digits {
+  color: var(--c-blunder);
+}
+.rclock.rclock-expired .rclock-digits {
+  color: var(--c-blunder);
+  animation: pulse 0.6s infinite;
+}
+.rclock-time {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+.rclock-digits {
+  font-family: 'Roboto', 'Courier New', monospace;
+  font-size: 2.4rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--c-text);
+  line-height: 1;
+  transition: color 0.2s;
+}
+.rclock-sep {
+  display: block;
+  font-family: 'Roboto', 'Courier New', monospace;
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--c-text);
+  opacity: 0.5;
+  line-height: 1;
+  margin: 0 2px;
+}
 
 /* --- Coach banner ----------------------------------------- */
 .coach-banner {
@@ -962,46 +1033,17 @@ cg-container {
   color: var(--c-accent);
 }
 
-/* --- Player clock ----------------------------------------- */
+/* --- Clock row -------------------------------------------- */
 .clock-row {
   display: flex;
   gap: 16px;
   width: var(--board-size);
   justify-content: space-between;
 }
-.player-clock {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  color: var(--c-text);
-  padding: 4px 12px;
-  border-radius: var(--radius);
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  transition: border-color 0.2s, background 0.2s;
-}
-.player-clock.clock-active {
-  border-color: var(--c-accent);
-  background: var(--c-accent-glow);
-}
-.player-clock.clock-urgent .clock-time {
-  color: var(--c-blunder);
-}
-.player-clock.clock-expired .clock-time {
-  color: var(--c-blunder);
-  animation: pulse 0.6s infinite;
-}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.3; }
-}
-.clock-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  color: var(--c-text-muted);
-  font-family: var(--font-ui);
 }
 
 /* --- Game-end overlay ------------------------------------- */

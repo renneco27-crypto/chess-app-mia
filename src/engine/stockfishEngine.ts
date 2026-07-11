@@ -1,16 +1,3 @@
-// ---------------------------------------------------------------------------
-// Stockfish engine wrapper.
-//
-// THE THING THAT CANNOT BE WRONG: Stockfish is a single-threaded UCI process.
-// If you fire `evaluate()` twice concurrently without queuing, the second
-// `position` command lands while the first search is still running and both
-// results get corrupted silently (you'll get plausible-looking but wrong
-// evals — the worst kind of bug). Every call goes through a single queue.
-//
-// Only ONE instance of this class should ever exist for the app's lifetime.
-// Never spin up a new Worker per move.
-// ---------------------------------------------------------------------------
-
 import type { EngineLine, EngineResult } from '../types'
 
 type PendingJob = {
@@ -34,10 +21,20 @@ export class StockfishEngine {
   constructor(wasmUrl = '/stockfish/stockfish.js') {
     this.worker = new Worker(wasmUrl)
     this.worker.onmessage = (e: MessageEvent<string>) => this.onMessage(e.data)
+    this.worker.onerror = (e) => this.onError(e)
     this.worker.postMessage('uci')
   }
 
-  /** Resolves once Stockfish has confirmed `uciok` + `readyok`. */
+  private onError(e: ErrorEvent) {
+    console.error('Stockfish worker error:', e.message)
+    if (this.currentJob) {
+      this.currentJob.reject(new Error(`Stockfish worker error: ${e.message}`))
+      this.currentJob = null
+      this.busy = false
+      this.pump()
+    }
+  }
+
   private handshake(): Promise<void> {
     return new Promise((resolve) => {
       const onMsg = (e: MessageEvent<string>) => {
@@ -56,13 +53,26 @@ export class StockfishEngine {
     if (!this.ready) await this.handshake()
   }
 
-  /**
-   * Evaluate a FEN. Returns `multiPV` lines, sorted best-first, all scores
-   * normalized to the perspective of the side to move in `fen`.
-   */
-  evaluate(fen: string, depth = 18, multiPV = 1): Promise<EngineResult> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ fen, depth, multiPV, resolve, reject })
+  evaluate(fen: string, depth = 18, multiPV = 1, timeoutMs = 25000): Promise<EngineResult> {
+    return new Promise<EngineResult>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        if (this.currentJob?.fen === fen && this.currentJob?.depth === depth) {
+          this.currentJob = null
+          this.busy = false
+          this.pump()
+        } else {
+          const idx = this.queue.findIndex(j => j.fen === fen && j.depth === depth)
+          if (idx >= 0) this.queue.splice(idx, 1)
+        }
+        reject(new Error(`Stockfish evaluate timed out after ${timeoutMs}ms`))
+      }, timeoutMs)
+
+      const wrappedReject = (err: Error) => {
+        clearTimeout(timer)
+        reject(err)
+      }
+
+      this.queue.push({ fen, depth, multiPV, resolve, reject: wrappedReject })
       this.pump()
     })
   }
@@ -85,7 +95,7 @@ export class StockfishEngine {
   }
 
   private onMessage(data: string) {
-    if (!this.currentJob) return // handshake traffic, ignore here
+    if (!this.currentJob) return
 
     if (data.startsWith('info') && data.includes('multipv')) {
       this.parseInfoLine(data)
@@ -123,9 +133,6 @@ export class StockfishEngine {
     const depth = depthMatch ? parseInt(depthMatch[1]!, 10) : 0
     const move = pvMatch[1]!
 
-    // Stockfish streams increasing depths; only trust the latest depth per
-    // multipv slot so a partial shallow line doesn't clobber a deeper one
-    // that already arrived (can happen with out-of-order info spam).
     const existing = this.linesByMultiPv.get(multipv)
     if (existing && depth < this.currentDepthSeen) return
     this.currentDepthSeen = Math.max(this.currentDepthSeen, depth)
@@ -151,7 +158,6 @@ export class StockfishEngine {
   }
 }
 
-/** Module-level singleton. Import this everywhere instead of `new StockfishEngine()`. */
 let singleton: StockfishEngine | null = null
 export function getEngine(): StockfishEngine {
   if (!singleton) singleton = new StockfishEngine()

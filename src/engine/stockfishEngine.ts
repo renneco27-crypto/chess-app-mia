@@ -31,7 +31,7 @@ export class StockfishEngine {
   private currentDepthSeen = 0
   private lastConfiguredMultiPV = 1
 
-  constructor(wasmUrl = '/stockfish.js') {
+  constructor(wasmUrl = '/stockfish/stockfish.js') {
     this.worker = new Worker(wasmUrl)
     this.worker.onmessage = (e: MessageEvent<string>) => this.onMessage(e.data)
     this.worker.postMessage('uci')

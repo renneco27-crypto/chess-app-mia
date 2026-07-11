@@ -13,6 +13,9 @@
 // 1. Chessground base — must come before your overrides
 import '@lichess-org/chessground/assets/chessground.base.css'
 
+// 1.5 Board theme — orange/black squares
+import '@lichess-org/chessground/assets/chessground.brown.css'
+
 // 2. Piece set — CBurnett is free/open, bundled with chessground examples.
 //    If the path below 404s, copy the CSS from:
 //    node_modules/@lichess-org/chessground/assets/ into public/pieces/

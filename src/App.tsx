@@ -8,7 +8,7 @@ import { LearnPage } from './pages/LearnPage'
 export type Page = 'learn' | 'play' | 'review' | 'drill'
 
 export function App() {
-  const [page, setPage] = useState<Page>('learn')
+  const [page, setPage] = useState<Page>('play')
 
   return (
     <div className="app-shell">

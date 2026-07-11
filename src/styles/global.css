@@ -9,17 +9,17 @@
 /* --- Tokens ------------------------------------------------ */
 :root {
   /* Board-derived palette */
-  --c-bg:           #0f1117;   /* near-black, off-board space  */
-  --c-surface:      #181c27;   /* card / panel background      */
-  --c-surface-2:    #1f2438;   /* nested surfaces, inputs      */
-  --c-border:       #2a3048;   /* subtle separators            */
+  --c-bg:           #000000;   /* pure black off-board space */
+  --c-surface:      #111111;   /* card / panel background      */
+  --c-surface-2:    #1a1a1a;   /* nested surfaces, inputs      */
+  --c-border:       #2a2a2a;   /* subtle separators            */
   --c-text:         #e8eaf2;   /* primary text                 */
-  --c-text-muted:   #6b7494;   /* labels, timestamps           */
+  --c-text-muted:   #888888;   /* labels, timestamps           */
 
-  /* Accent — amber/gold (chess piece material, not generic orange) */
-  --c-accent:       #e6b84a;
-  --c-accent-dim:   #a07f28;
-  --c-accent-glow:  rgba(230, 184, 74, 0.15);
+  /* Accent — orange */
+  --c-accent:       #ff7b00;
+  --c-accent-dim:   #cc6200;
+  --c-accent-glow:  rgba(255, 123, 0, 0.15);
 
   /* Move quality colors — stay within their semantic meaning */
   --c-brilliant:    #1baca6;
@@ -32,7 +32,7 @@
   --c-only-move:    #a64ae6;
 
   /* Layout */
-  --board-size:     clamp(300px, 52vmin, 560px);
+  --board-size:     clamp(450px, 78vmin, 840px);
   --sidebar-width:  320px;
   --radius:         8px;
   --radius-lg:      14px;
@@ -73,7 +73,6 @@ input, select { font-family: inherit; }
   width: var(--board-size);
   height: var(--board-size);
   border-radius: var(--radius);
-  overflow: hidden;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
 }
 

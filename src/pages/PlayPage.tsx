@@ -54,26 +54,6 @@ export function PlayPage() {
   const [waiting, setWaiting]             = useState(false) // true while Maia is thinking
   const [activeTab, setActiveTab]         = useState<'moves' | 'engine'>('moves')
 
-  // ── Initial board config — created ONCE, never changes ─────────────────
-  // This is the only time we pass a config to ChessBoard.
-  // Everything after this is done via boardRef.current.api.set().
-  const initialConfig = useMemo(() => ({
-    fen: STARTING_FEN,
-    orientation: 'white' as const,
-    movable: {
-      free: false,
-      color: 'white' as const,
-      showDests: true,
-      dests: getLegalDests(chessRef.current),
-      events: { after: onMove },
-    },
-    animation: { enabled: true, duration: 200 },
-    highlight: { lastMove: true, check: true },
-    premovable: { enabled: false },
-    coordinates: true,
-  }), []) // eslint-disable-line react-hooks/exhaustive-deps
-  // onMove is stable (defined below with useCallback and no deps that change)
-
   // ── Player move handler ─────────────────────────────────────────────────
   // Chessground calls this after it animates the piece. At this point the
   // move has already been shown visually — we need to:
@@ -178,6 +158,23 @@ export function PlayPage() {
 
     setWaiting(false)
   }, []) // stable — chess ref and board ref never change
+
+  // ── Initial board config — created ONCE, never changes ─────────────────
+  const initialConfig = useMemo(() => ({
+    fen: STARTING_FEN,
+    orientation: 'white' as const,
+    movable: {
+      free: false,
+      color: 'white' as const,
+      showDests: true,
+      dests: getLegalDests(chessRef.current),
+      events: { after: onMove },
+    },
+    animation: { enabled: true, duration: 200 },
+    highlight: { lastMove: true, check: true },
+    premovable: { enabled: false },
+    coordinates: true,
+  }), []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── New game reset ──────────────────────────────────────────────────────
   const resetGame = useCallback(() => {

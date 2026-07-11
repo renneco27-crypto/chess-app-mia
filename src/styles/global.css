@@ -72,8 +72,12 @@ input, select { font-family: inherit; }
 .cg-wrap {
   width: var(--board-size);
   height: var(--board-size);
+  aspect-ratio: 1;
   border-radius: var(--radius);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+cg-container {
+  overflow: visible !important;
 }
 
 /* Best-move arrow — amber instead of Chessground's default blue */
@@ -127,7 +131,6 @@ input, select { font-family: inherit; }
   grid-template-columns: 1fr var(--sidebar-width);
   gap: 0;
   height: 100%;
-  overflow: hidden;
 }
 .board-area {
   display: flex;
@@ -136,6 +139,7 @@ input, select { font-family: inherit; }
   justify-content: center;
   gap: 12px;
   padding: 24px;
+  min-height: 0;
   overflow: auto;
 }
 .sidebar {
